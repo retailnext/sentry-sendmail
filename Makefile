@@ -24,7 +24,7 @@ build:
 	@echo "Building linux binary dist..."
 	@GOOS=linux GOARCH=amd64 CGO_ENABLED=0 GO111MODULE=on go build -trimpath -tags "$(BUILDTAGS)" $(GO_LDFLAGS) -o $(BUILDDIR)/sendmail ./cmd/sendmail
 	@echo "Building deb..."
-	@go run -ldflags "-X main.Version=$(VERSION)" ./cmd/build-deb
+	@GO111MODULE=on go run -ldflags "-X main.Version=$(VERSION)" ./cmd/build-deb
 	@echo "Building binary..."
 	@CGO_ENABLED=0 GO111MODULE=on go build -trimpath -tags "$(BUILDTAGS)" $(GO_LDFLAGS) -o $(BINDIR)/sendmail ./cmd/sendmail
 

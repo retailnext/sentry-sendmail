@@ -1,14 +1,17 @@
 // Copyright (c) 2019, RetailNext, Inc.
-// This material contains trade secrets and confidential information of
-// RetailNext, Inc.  Any use, reproduction, disclosure or dissemination
-// is strictly prohibited without the explicit written permission
-// of RetailNext, Inc.
+// This software may be modified and distributed under the terms
+// of the BSD license. See the LICENSE file for details.
 // All rights reserved.
 
 package main
 
 import (
-	"github.com/xor-gate/debpkg"
+	"fmt"
+	"os"
+	"strings"
+
+	"github.com/goreleaser/nfpm"
+	_ "github.com/goreleaser/nfpm/deb"
 )
 
 var (
@@ -16,27 +19,60 @@ var (
 	Version = "0.0.0"
 )
 
-var postInst = `#!/bin/sh
-chown root:root /usr/sbin/sendmail
-chown root:root /etc/sentry-sendmail.conf
+var yamlConfig = `# sentry-sendmail config file
+name: "sentry-sendmail"
+arch: "amd64"
+platform: "linux"
+version: "` + Version + `"
+section: "default"
+priority: "extra"
+replaces:
+- sendmail
+maintainer: "Ivan Daunis <ivan.daunis@retailnext.net>"
+description: |
+  Sendmail interface for sentry.
+vendor: "RetailNext Inc."
+homepage: "http://github.com/retailnext/sentry-sendmail"
+license: "BSD"
+files:
+  ./dist/sendmail: "/usr/sbin/sendmail"
+config_files:
+  ./config/sentry-sendmail.conf: "/etc/sentry-sendmail.conf"
 `
 
+func buildPackage(yaml, format, target string) error {
+	config, err := nfpm.Parse(strings.NewReader(yaml))
+	if err != nil {
+		return err
+	}
+
+	info, err := config.Get(format)
+	if err != nil {
+		return err
+	}
+
+	info = nfpm.WithDefaults(info)
+
+	if err = nfpm.Validate(info); err != nil {
+		return err
+	}
+
+	pkg, err := nfpm.Get(format)
+	if err != nil {
+		return err
+	}
+
+	f, err := os.Create(target)
+	if err != nil {
+		return err
+	}
+
+	return pkg.Package(info, f)
+}
+
 func main() {
-	deb := debpkg.New()
-
-	deb.SetName("sentry-sendmail")
-	deb.SetVersion(Version)
-	deb.SetArchitecture("amd64")
-	deb.SetMaintainer("Ivan Daunis")
-	deb.SetMaintainerEmail("ivan.daunis@retailnext.net")
-	deb.SetHomepage("http://github.com/retailnext")
-	deb.SetShortDescription("Sendmail interface for sentry")
-	deb.SetDescription("Sendmail interface for sentry\n")
-
-	deb.AddControlExtraString("postinst", postInst)
-	deb.AddFile("config/sentry-sendmail.conf", "./etc/sentry-sendmail.conf")
-	deb.AddFile("dist/sendmail", "./usr/sbin/sendmail")
-
-	deb.Write("dist/sentry-sendmail-v" + Version + ".deb")
-	deb.Close()
+	err := buildPackage(yamlConfig, "deb", "dist/sentry-sendmail-v"+Version+".deb")
+	if err != nil {
+		fmt.Println(err)
+	}
 }
