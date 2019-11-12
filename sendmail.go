@@ -1,8 +1,6 @@
 // Copyright (c) 2019, RetailNext, Inc.
-// This material contains trade secrets and confidential information of
-// RetailNext, Inc.  Any use, reproduction, disclosure or dissemination
-// is strictly prohibited without the explicit written permission
-// of RetailNext, Inc.
+// This software may be modified and distributed under the terms
+// of the BSD license. See the LICENSE file for details.
 // All rights reserved.
 
 package sendmail
@@ -13,7 +11,6 @@ import (
 	"io/ioutil"
 	"mime/quotedprintable"
 	"os"
-	"runtime"
 	"strings"
 	"time"
 
@@ -41,17 +38,29 @@ type Config struct {
 
 func SentryConfig() error {
 	var conf Config
-	if _, err := toml.DecodeFile(configPath, &conf); err != nil {
-		return err
+
+	_, err := toml.DecodeFile(configPath, &conf)
+
+	if os.Getenv("SENTRY_DSN") != "" {
+		conf.SentryDSN = os.Getenv("SENTRY_DSN")
+	}
+
+	if os.Getenv("SENTRY_ENVIRONMENT") != "" {
+		conf.Environment = os.Getenv("SENTRY_ENVIRONMENT")
+	}
+
+	// Error parsing the config file and we still don't have a DSN
+	if _, isFileErr := err.(*os.PathError); conf.SentryDSN == "" && err != nil && !isFileErr {
+		return fmt.Errorf("Can not read Sentry DSN from %s: %v", configPath, err)
 	}
 
 	if conf.SentryDSN == "" {
-		return fmt.Errorf("Sentry DSN not set. Please enter DSN in the config file: %s", configPath)
+		return fmt.Errorf("Sentry DSN not set. Please set SENTRY_DSN environment variable or enter DSN in the config file: %s", configPath)
 	}
 
-	err := raven.SetDSN(conf.SentryDSN)
+	err = raven.SetDSN(conf.SentryDSN)
 	if err != nil {
-		return err
+		return fmt.Errorf("Sentry DSN [%s] error: %v", conf.SentryDSN, err)
 	}
 
 	if conf.Environment != "" {
@@ -62,10 +71,8 @@ func SentryConfig() error {
 
 func getExtra(headers map[string]string) map[string]interface{} {
 	return map[string]interface{}{
-		"pid":            os.Getpid(),
-		"runtime.GOOS":   runtime.GOOS,
-		"runtime.GOARCH": runtime.GOARCH,
-		"headers":        headers,
+		"ppid":    os.Getppid(),
+		"headers": headers,
 	}
 }
 
@@ -81,13 +88,17 @@ func SentrySend(message string, headers map[string]string) error {
 	return fmt.Errorf("Capture returned empty eventID")
 }
 
-func ReadData(reader *bufio.Reader) (map[string]string, string) {
+func ReadData(reader *bufio.Reader) (map[string]string, string, string) {
+	raw := ""
 	body := ""
 	headers := make(map[string]string)
 
-	logFile, _ := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	fmt.Fprintln(logFile, time.Now().UTC().Format("2006-01-02T15:04:05.999Z"), "-----------")
-	defer logFile.Close()
+	var logFile *os.File
+	if opts.LogFile != "" {
+		logFile, _ = os.OpenFile(opts.LogFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		fmt.Fprintln(logFile, time.Now().UTC().Format("2006-01-02T15:04:05.999Z"), "-----------")
+		defer logFile.Close()
+	}
 
 	// Read headers first
 	inHeaders := true
@@ -95,11 +106,14 @@ func ReadData(reader *bufio.Reader) (map[string]string, string) {
 
 	for {
 		line, err := reader.ReadString('\n')
-		fmt.Fprint(logFile, line)
+		if logFile != nil {
+			fmt.Fprint(logFile, line)
+		}
+		raw += line
 		if err != nil {
 			body += line
 			// If EOF here, line has not been processed and can be the body
-			return headers, body
+			return headers, body, raw
 		}
 		if !opts.IgnoreDot && len(line) == 2 && line[0] == '.' {
 			break
@@ -131,7 +145,7 @@ func ReadData(reader *bufio.Reader) (map[string]string, string) {
 		}
 	}
 
-	return headers, body
+	return headers, body, raw
 }
 
 func BuildMessage(headers map[string]string, body string) (string, error) {

@@ -1,8 +1,6 @@
 // Copyright (c) 2019, RetailNext, Inc.
-// This material contains trade secrets and confidential information of
-// RetailNext, Inc.  Any use, reproduction, disclosure or dissemination
-// is strictly prohibited without the explicit written permission
-// of RetailNext, Inc.
+// This software may be modified and distributed under the terms
+// of the BSD license. See the LICENSE file for details.
 // All rights reserved.
 
 package sendmail
@@ -45,7 +43,7 @@ var opts struct {
 	FlagU             string   `short:"U" description:"(ignored)"`
 	EnvelopeID        string   `short:"V" description:"(ignored) Set the original envelope id."`
 	Verbose           bool     `short:"v" description:"(ignored) Go into verbose mode."`
-	LogFile           string   `short:"X" description:"(ignored) Log all traffic in and out of mailers in the indicated log file.\n"`
+	LogFile           string   `short:"X" description:"Log all traffic in and out of mailers in the indicated log file.\n"`
 	Version           bool     `long:"version" hidden:"true"`
 	ShowHelp          bool     `long:"help" description:"Display this help and exit"`
 }
