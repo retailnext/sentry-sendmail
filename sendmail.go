@@ -26,16 +26,18 @@ var (
 )
 
 var (
-	logPath    = "/var/log/sentry-sendmail.log"
 	configPath = "/etc/sentry-sendmail.conf"
 	recipients = ""
 )
 
+// Config structure is where the config file options get de-serialized.
 type Config struct {
 	SentryDSN   string `toml:"DSN"`
 	Environment string
 }
 
+// SentryConfig sets the Sentry DSN and Environment by reading values from
+// environment variables and the config file.
 func SentryConfig() error {
 	var conf Config
 
@@ -76,6 +78,7 @@ func getExtra(headers map[string]string) map[string]interface{} {
 	}
 }
 
+// SentrySend sends the message to Sentry
 func SentrySend(message string, headers map[string]string) error {
 	strLevel := "Info"
 	pkt := raven.NewPacketWithExtra(message, getExtra(headers))
@@ -88,6 +91,7 @@ func SentrySend(message string, headers map[string]string) error {
 	return fmt.Errorf("Capture returned empty eventID")
 }
 
+// ReadData reads data envelope from a input stream and parses the message.
 func ReadData(reader *bufio.Reader) (map[string]string, string, string) {
 	raw := ""
 	body := ""
@@ -148,6 +152,7 @@ func ReadData(reader *bufio.Reader) (map[string]string, string, string) {
 	return headers, body, raw
 }
 
+// BuildMessage creates a Sentry ready message from an email envelope
 func BuildMessage(headers map[string]string, body string) (string, error) {
 	message := headers["subject"] + "\n"
 

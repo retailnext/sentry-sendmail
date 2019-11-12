@@ -75,6 +75,7 @@ func showHelp(data interface{}) {
 	fmt.Print("\n")
 }
 
+// ParseOptions loads the sendmail options from the command line parameters.
 func ParseOptions() {
 	// To handle flags as sendmail we need to support
 	// GNU extensions to the POSIX recommendations for command-line options
