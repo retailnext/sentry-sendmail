@@ -24,10 +24,14 @@ name: "sentry-sendmail"
 arch: "amd64"
 platform: "linux"
 version: "` + Version + `"
-section: "default"
-priority: "extra"
+section: "mail"
+priority: "optional"
+conflicts:
+- mail-transport-agent
 replaces:
-- sendmail
+- mail-transport-agent
+provides:
+- mail-transport-agent
 maintainer: "Ivan Daunis <ivan.daunis@retailnext.net>"
 description: |
   Sendmail interface for sentry.
