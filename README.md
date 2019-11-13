@@ -1,4 +1,6 @@
-## Sentry Sendmail
+# Sentry Sendmail
+
+[![Build Status](https://travis-ci.org/retailnext/sentry-sendmail.svg?branch=master)](https://travis-ci.org/retailnext/sentry-sendmail)
 
 This is sentry-sendmail, a sendmail replacement MTA. That means that all incoming emails on a system will get forwarded to sentry as a sentry issue.
 
