@@ -21,37 +21,42 @@ var (
 	appName string
 )
 
-func wrap(err error) string {
+func formatError(err error) string {
 	return fmt.Sprintf("%s: error: %s", appName, err.Error())
+}
+
+func errorWithMessage(err error, message string) {
+	if journal.Enabled() {
+		vars := map[string]string{}
+		journal.Send(formatError(err), journal.PriErr, vars)
+		journal.Send(message, journal.PriErr, vars)
+	} else {
+		bytes, _ := json.Marshal(map[string]string{"message": message})
+		fmt.Fprintln(os.Stderr, formatError(err), string(bytes))
+	}
 }
 
 func main() {
 	appName = filepath.Base(os.Args[0])
 
 	sendmail.ParseOptions()
+	headers, body, rawData := sendmail.ReadData(bufio.NewReader(os.Stdin))
+
 	err := sendmail.SentryConfig()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, wrap(err))
+		errorWithMessage(err, rawData)
 		return
 	}
 
-	headers, body, rawData := sendmail.ReadData(bufio.NewReader(os.Stdin))
 	message, err := sendmail.BuildMessage(headers, body)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, wrap(err))
+		errorWithMessage(err, rawData)
 		return
 	}
 
 	err = sendmail.SentrySend(message, headers)
 	if err != nil {
-		if journal.Enabled() {
-			vars := map[string]string{}
-			journal.Send(wrap(err), journal.PriErr, vars)
-			journal.Send(rawData, journal.PriErr, vars)
-		} else {
-			bytes, _ := json.Marshal(map[string]string{"message": rawData})
-			fmt.Fprintln(os.Stderr, wrap(err), string(bytes))
-		}
+		errorWithMessage(err, rawData)
 		return
 	}
 }
