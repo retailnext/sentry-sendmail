@@ -91,7 +91,7 @@ func SentrySend(message string, headers map[string]string) error {
 	return fmt.Errorf("Capture returned empty eventID")
 }
 
-// ReadData reads data envelope from a input stream and parses the message.
+// ReadData reads data envelope from an input stream and parses the message.
 func ReadData(reader *bufio.Reader) (map[string]string, string, string) {
 	raw := ""
 	body := ""
@@ -165,6 +165,9 @@ func BuildMessage(headers map[string]string, body string) (string, error) {
 	if len(opts.SenderAddress) > 0 {
 		headers["from"] = opts.SenderAddress
 	}
+	if len(headers["from"]) == 0 {
+		return message, fmt.Errorf("Sender must be specified")
+	}
 
 	if headers["content-transfer-encoding"] == "quoted-printable" {
 		decoded, _ := ioutil.ReadAll(quotedprintable.NewReader(strings.NewReader(string(body))))
@@ -173,8 +176,5 @@ func BuildMessage(headers map[string]string, body string) (string, error) {
 		message += string(body)
 	}
 
-	if len(headers["from"]) == 0 {
-		return message, fmt.Errorf("Sender must be specified")
-	}
 	return message, nil
 }
