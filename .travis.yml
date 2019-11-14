@@ -7,7 +7,8 @@ deploy:
   provider: releases
   api_key:
     secure: XVk9+zLmVICSG/jMAFWDMOXGggaUN5D1eGdWyHDzz6KOWsQHnylzDAnRR3caut2r1/6mb12DVo3/4hn8V2GpBbcsBcO0f3QiKvoGz58j2/OlV2nMZC5hpbZoTCFD+gCNvEZzolZ+PA10ABx9bVy0V5rIMh2is/iTtKoaj3ktFly2h2kaIvVkF1aVFmyflTRGkH/Ui4SFD2XjnRNe57rJRJaPb2A/qtH15RDD7KwRRmUxgEM07M19KjyPoH4jo8baeVhFgS4C5DPQuHzx3q7nM5tUPAyKOYYw0v7rIt2qz5HWXZYVQc3k9OG1hsYv+CtZjDh2Wi6WBzMNFIadA6JSGihzN/vMwtKY+9rtlualumAsVeFsgbEmiSDAVs3lX8NZ4pWpI/4qAMwRisVYjmtrD5vpmP7Zq0UmE0wYAz9SkmpYJWG/hVlLiR7RbHAvVgP07bZewYT4yTrfHwIu3h/Bx9S2EP9p9RgLFzGCwl8zk1FQHfZCn1pHVpV0aayQ7y6uV1cAaPWXKkU8MNL9JW5dkcuhxFAZb1dROdkj/ReBZWztL8zA06M9YkSpKvp+5x7MzYfmguNmCy+2Mqtj3OXF6feliVSRa8UCG2YsBT8dKrfXAWzyS0L2aBzXuVBL57RI1GWeHy609g+1ifHvQe/CDWOhzXhSuuZkzCgDrsf3xmA=
-  file: dist/sentry-sendmail_0.0.1_amd64.deb
+  file_glob: true
+  file: dist/*.deb
   skip_cleanup: true
   overwrite: true
   on:
