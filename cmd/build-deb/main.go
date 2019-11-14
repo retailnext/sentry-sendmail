@@ -75,7 +75,7 @@ func buildPackage(yaml, format, target string) error {
 }
 
 func main() {
-	err := buildPackage(yamlConfig, "deb", "dist/sentry-sendmail-v"+Version+".deb")
+	err := buildPackage(yamlConfig, "deb", "dist/sentry-sendmail_"+Version+"_amd64.deb")
 	if err != nil {
 		fmt.Println(err)
 	}
