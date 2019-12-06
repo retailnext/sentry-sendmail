@@ -80,7 +80,7 @@ func getExtra(headers map[string]string) map[string]interface{} {
 
 // SentrySend sends the message to Sentry
 func SentrySend(message string, headers map[string]string) error {
-	strLevel := "Info"
+	strLevel := "error"
 	pkt := raven.NewPacketWithExtra(message, getExtra(headers))
 	pkt.Level = raven.Severity(strLevel)
 	eventID, ch := raven.Capture(pkt, nil)
