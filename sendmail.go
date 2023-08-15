@@ -1,4 +1,4 @@
-// Copyright (c) 2019, RetailNext, Inc.
+// Copyright (c) 2023, RetailNext, Inc.
 // This software may be modified and distributed under the terms
 // of the BSD license. See the LICENSE file for details.
 // All rights reserved.
@@ -8,7 +8,7 @@ package sendmail
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"mime/quotedprintable"
 	"os"
 	"strings"
@@ -170,7 +170,7 @@ func BuildMessage(headers map[string]string, body string) (string, error) {
 	}
 
 	if headers["content-transfer-encoding"] == "quoted-printable" {
-		decoded, _ := ioutil.ReadAll(quotedprintable.NewReader(strings.NewReader(string(body))))
+		decoded, _ := io.ReadAll(quotedprintable.NewReader(strings.NewReader(string(body))))
 		message += string(decoded)
 	} else {
 		message += string(body)
