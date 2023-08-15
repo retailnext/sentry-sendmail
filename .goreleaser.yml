@@ -47,4 +47,5 @@ changelog:
       - '^chore\(ci\):'
       - '^chore\(deps\):'
       - '^docs:'
+      - '^fix\(lint\):'
       - '^test:'
