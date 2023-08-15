@@ -4,11 +4,10 @@ on:
   pull_request:
     branches:
       - main
-      - master
+  merge_group:
   push:
     branches:
       - main
-      - master
     tags:
       - v*
 env:
