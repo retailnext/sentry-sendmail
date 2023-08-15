@@ -12,22 +12,21 @@ This can be useful in situations where SMTP can not be used or local email serve
 sudo apt-get install sentry-sendmail
 ```
 
-## Manual Build
+## Local Build
 Retrieve the latest copy of the source code by cloning the repository.
 
 ```bash
 git clone https://github.com/retailnext/sentry-sendmail.git $HOME/sentry-sendmail
 ```
 
-## Make
+### Build packages using GoReleaser
 Build sentry-sendmail from source in a single step using make.
 
 ```bash
-cd $HOME/sentry-sendmail
-make
+goreleaser release --clean --snapshot
 ```
 
-Make will build the linux binary and the debian package in the `/dist` directory. And the binary for your platform on the `/bin` directory.
+This will create installation tarballs and packages in `dist/`.
 
 ## Configuration
 
