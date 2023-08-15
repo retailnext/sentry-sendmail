@@ -1,4 +1,4 @@
-// Copyright (c) 2019, RetailNext, Inc.
+// Copyright (c) 2023, RetailNext, Inc.
 // This software may be modified and distributed under the terms
 // of the BSD license. See the LICENSE file for details.
 // All rights reserved.
@@ -26,11 +26,15 @@ func formatError(err error) string {
 }
 
 func errorWithMessage(err error, message string) {
+	var journalOk bool
 	if journal.Enabled() {
 		vars := map[string]string{}
-		journal.Send(formatError(err), journal.PriErr, vars)
-		journal.Send(message, journal.PriErr, vars)
-	} else {
+		err1 := journal.Send(formatError(err), journal.PriErr, vars)
+		err2 := journal.Send(message, journal.PriErr, vars)
+		journalOk = err1 == nil && err2 == nil
+	}
+	// Skip logging to stderr if logging to the journal worked.
+	if !journalOk {
 		bytes, _ := json.Marshal(map[string]string{"message": message})
 		fmt.Fprintln(os.Stderr, formatError(err), string(bytes))
 	}
