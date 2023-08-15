@@ -1,0 +1,50 @@
+---
+builds:
+  - id: sentry-sendmail
+    binary: sendmail
+    main: ./cmd/sendmail
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/retailnext/sentry-sendmail.Version={{.Version}}
+    mod_timestamp: "{{ .CommitTimestamp }}"
+nfpms:
+  - id: sentry-sendmail
+    formats:
+      - deb
+    homepage: "https://github.com/retailnext/sentry-sendmail"
+    license: "BSD-3-clause"
+    maintainer: "RetailNext <do-not-reply@retailnext.net>"
+    description: |-
+      Sendmail drop-in replacement that sends to Sentry instead of email.
+    section: mail
+    bindir: /usr/sbin
+    contents:
+      - src: config/sentry-sendmail.conf
+        dst: /etc/sentry-sendmail.conf
+        type: 'config|noreplace'
+    overrides:
+      deb:
+        conflicts:
+          - mail-transport-agent
+        replaces:
+          - mail-transport-agent
+        provides:
+          - mail-transport-agent
+checksum:
+  name_template: 'checksums.txt'
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^chore\(ci\):'
+      - '^chore\(deps\):'
+      - '^docs:'
+      - '^test:'
