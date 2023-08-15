@@ -1,7 +1,5 @@
 # Sentry Sendmail
 
-[![Build Status](https://travis-ci.org/retailnext/sentry-sendmail.svg?branch=master)](https://travis-ci.org/retailnext/sentry-sendmail)
-
 This is sentry-sendmail, a sendmail replacement MTA. That means that all incoming emails on a system will get forwarded to sentry as a sentry issue.
 
 This can be useful in situations where SMTP can not be used or local email server can not be installed, and we want to capture system's email as a sentry event.
