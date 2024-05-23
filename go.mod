@@ -5,7 +5,7 @@ go 1.21
 toolchain go1.22.3
 
 require (
-	github.com/BurntSushi/toml v1.3.2
+	github.com/BurntSushi/toml v1.4.0
 	github.com/coreos/go-systemd/v22 v22.5.0
 	github.com/getsentry/raven-go v0.2.0
 	github.com/jessevdk/go-flags v1.5.0
