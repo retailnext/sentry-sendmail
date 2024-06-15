@@ -8,7 +8,7 @@ require (
 	github.com/BurntSushi/toml v1.4.0
 	github.com/coreos/go-systemd/v22 v22.5.0
 	github.com/getsentry/raven-go v0.2.0
-	github.com/jessevdk/go-flags v1.6.0
+	github.com/jessevdk/go-flags v1.6.1
 )
 
 require (
