@@ -2,7 +2,7 @@ module github.com/retailnext/sentry-sendmail
 
 go 1.23
 
-toolchain go1.24.6
+toolchain go1.25.7
 
 require (
 	github.com/BurntSushi/toml v1.6.0
