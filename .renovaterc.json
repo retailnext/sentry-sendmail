@@ -5,7 +5,7 @@
     ":automergeAll",
     ":semanticCommits",
     ":maintainLockFilesWeekly",
-    "regexManagers:githubActionsVersions"
+    "customManagers:githubActionsVersions"
   ],
   "labels": [
     "dependencies"
