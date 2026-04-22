@@ -53,16 +53,16 @@ func SentryConfig() error {
 
 	// Error parsing the config file and we still don't have a DSN
 	if _, isFileErr := err.(*os.PathError); conf.SentryDSN == "" && err != nil && !isFileErr {
-		return fmt.Errorf("Can not read Sentry DSN from %s: %v", configPath, err)
+		return fmt.Errorf("can not read Sentry DSN from %s: %v", configPath, err)
 	}
 
 	if conf.SentryDSN == "" {
-		return fmt.Errorf("Sentry DSN not set. Please set SENTRY_DSN environment variable or enter DSN in the config file: %s", configPath)
+		return fmt.Errorf("sentry DSN not set. Please set SENTRY_DSN environment variable or enter DSN in the config file: %s", configPath)
 	}
 
 	err = raven.SetDSN(conf.SentryDSN)
 	if err != nil {
-		return fmt.Errorf("Sentry DSN [%s] error: %v", conf.SentryDSN, err)
+		return fmt.Errorf("sentry DSN [%s] error: %v", conf.SentryDSN, err)
 	}
 
 	if conf.Environment != "" {
@@ -88,7 +88,7 @@ func SentrySend(message string, headers map[string]string) error {
 		err := <-ch
 		return err
 	}
-	return fmt.Errorf("Capture returned empty eventID")
+	return fmt.Errorf("capture returned empty eventID")
 }
 
 // ReadData reads data envelope from an input stream and parses the message.
@@ -100,8 +100,8 @@ func ReadData(reader *bufio.Reader) (map[string]string, string, string) {
 	var logFile *os.File
 	if opts.LogFile != "" {
 		logFile, _ = os.OpenFile(opts.LogFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		fmt.Fprintln(logFile, time.Now().UTC().Format("2006-01-02T15:04:05.999Z"), "-----------")
-		defer logFile.Close()
+		_, _ = fmt.Fprintln(logFile, time.Now().UTC().Format("2006-01-02T15:04:05.999Z"), "-----------")
+		defer func() { _ = logFile.Close()}()
 	}
 
 	// Read headers first
@@ -111,7 +111,7 @@ func ReadData(reader *bufio.Reader) (map[string]string, string, string) {
 	for {
 		line, err := reader.ReadString('\n')
 		if logFile != nil {
-			fmt.Fprint(logFile, line)
+			_, _ = fmt.Fprint(logFile, line)
 		}
 		raw += line
 		if err != nil {
@@ -166,7 +166,7 @@ func BuildMessage(headers map[string]string, body string) (string, error) {
 		headers["from"] = opts.SenderAddress
 	}
 	if len(headers["from"]) == 0 {
-		return message, fmt.Errorf("Sender must be specified")
+		return message, fmt.Errorf("sender must be specified")
 	}
 
 	if headers["content-transfer-encoding"] == "quoted-printable" {
